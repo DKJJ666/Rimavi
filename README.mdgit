@@ -1,0 +1,2 @@
+"# Rimavi"  initgit add README.mdgit commit -m "first commit"git branch -M maingit remote add origin https://github.com/DKJJ666/Rimavi.gitgit push -u origin main
+"# Rimavi"  initgit add README.mdgit commit -m "first commit"git branch -M maingit remote add origin https://github.com/DKJJ666/Rimavi.gitgit push -u origin main

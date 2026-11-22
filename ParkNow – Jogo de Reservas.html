@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ParkNow – Jogo de Reservas</title>
+<style>
+:root{--bg:#e9eef7;--bg2:#d9e3f5;--card:#fff;--tx:#14202f;--mu:#667389;--ac:#1d4ed8;--ok:#16a34a;--bad:#dc2626;--ln:#d5dcea;--ev:#10b981;--pcd:#2563eb;--vip:#f59e0b;--sh:0 4px 14px #1e2a4a1f;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1019;--bg2:#101828;--card:#172033;--tx:#e8edf6;--mu:#93a0b4;--ac:#5b8cff;--ln:#2a354b;--sh:0 4px 14px #0008}}
+:root[data-theme="dark"]{--bg:#0b1019;--bg2:#101828;--card:#172033;--tx:#e8edf6;--mu:#93a0b4;--ac:#5b8cff;--ln:#2a354b;--sh:0 4px 14px #0008}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+body{margin:0;background:linear-gradient(180deg,var(--bg2),var(--bg) 240px);color:var(--tx);font:16px/1.35 ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,-apple-system,Roboto,sans-serif;display:flex;justify-content:center;min-height:100vh}
+main{width:100%;max-width:480px;padding:14px}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.logo{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#1e3a8a);color:#fff;font:800 26px/42px system-ui;text-align:center;box-shadow:var(--sh)}
+h1{font-size:19px;margin:0;letter-spacing:-.01em}
+.sub{color:var(--mu);font-size:12.5px;margin:0}
+.bar{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pill{background:var(--card);border-radius:14px;padding:7px 4px;font-weight:800;text-align:center;font-size:18px;box-shadow:var(--sh)}
+.pill small{display:block;color:var(--mu);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
+.prog{height:6px;border-radius:3px;background:var(--ln);margin:10px 0 4px;overflow:hidden}
+.prog i{display:block;height:100%;background:linear-gradient(90deg,#2563eb,#60a5fa);transition:width .1s linear}
+#ban{height:22px;text-align:center;font-weight:800;font-size:13px;color:var(--bad);letter-spacing:.08em}
+h2{font-size:11.5px;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;margin:8px 2px 6px}
+#queue{min-height:160px;display:flex;flex-direction:column;gap:7px}
+.req{background:var(--card);border-radius:14px;padding:8px 12px;display:flex;align-items:center;gap:10px;cursor:pointer;position:relative;overflow:hidden;box-shadow:var(--sh);border:2px solid transparent}.req.new{animation:in .25s}
+.req.sel{border-color:var(--ac);transform:scale(1.015)}
+.req.vip{background:linear-gradient(90deg,#f59e0b22,var(--card) 60%)}
+.req .pt{position:absolute;left:0;bottom:0;height:4px}
+.req svg{width:22px;height:42px;transform:rotate(90deg) scale(.9);flex:none;margin:0 6px 0 0}
+.who{flex:1;min-width:0}.who b{display:block;font-size:15px}
+.plate{display:inline-flex;align-items:stretch;border:1.5px solid #222;border-radius:4px;overflow:hidden;font:700 11px/1 ui-monospace,Menlo,monospace;background:#fff;color:#111;letter-spacing:.06em}
+.plate i{background:#1d4ed8;color:#fff;font-style:normal;font-size:7px;padding:3px 3px;display:flex;align-items:flex-end}
+.plate span{padding:3px 5px}
+.tag{font-size:11px;border-radius:8px;padding:3px 8px;color:#fff;background:var(--mu);font-weight:700}
+.tag.ev{background:var(--ev)}.tag.pcd{background:var(--pcd)}.tag.vip{background:var(--vip)}
+#lot{position:relative;border-radius:18px;padding:12px 10px 10px;box-shadow:var(--sh);
+background:radial-gradient(circle at 20% 30%,#ffffff07 0 1px,transparent 2px) 0 0/9px 9px,radial-gradient(circle at 70% 60%,#00000018 0 1px,transparent 2px) 0 0/13px 13px,linear-gradient(#2e3543,#262c38);border:3px solid #3b4456}
+.gate{display:flex;align-items:center;justify-content:center;gap:8px;margin:-2px 0 10px;color:#cdd6e6;font-size:10.5px;letter-spacing:.2em;font-weight:700}
+.gate b{flex:1;max-width:120px;height:8px;border-radius:4px;background:repeating-linear-gradient(90deg,#ef4444 0 14px,#fff 14px 28px);box-shadow:0 1px 3px #0006}
+#grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.lane{grid-column:1/-1;height:38px;display:flex;align-items:center;justify-content:space-around;color:#ffffff40;font-size:18px;position:relative}
+.lane:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:2px dashed #f5c84288}
+.lane span{background:#2a303d;padding:0 6px;position:relative}
+.spot{aspect-ratio:.78;border-left:3px solid #e8ecf4;border-bottom:0;border-top:3px solid #e8ecf4;position:relative;overflow:hidden;cursor:pointer;display:flex;align-items:flex-end;justify-content:center;color:#ffffffaa;font:700 11px system-ui;padding-bottom:5px}
+.spot:nth-child(4n+0),.spot.last{border-right:3px solid #e8ecf4}
+.spot.ev{background:#10b98126}.spot.pcd{background:#2563eb40}
+.spot .st{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:30px;opacity:.55;filter:saturate(1.4)}
+.spot.pcd .st{font-size:34px}
+.spot.hint{background:#22c55e33;box-shadow:inset 0 0 0 2px #4ade80;animation:pu 1s infinite}
+@keyframes pu{50%{background:#22c55e55}}
+.spot.blk{background:repeating-linear-gradient(45deg,#f59e0b66 0 9px,#1f2937 9px 18px);cursor:not-allowed}
+.spot .car{position:absolute;left:14%;width:72%;top:8%;filter:drop-shadow(0 3px 3px #0008)}.spot .car.new{animation:park .5s ease-out}
+@keyframes park{from{transform:translateY(-140%);opacity:.2}}
+.spot .pl{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);font:700 8px ui-monospace,monospace;background:#fff;color:#111;border-radius:2px;padding:1px 3px;letter-spacing:.05em}
+.spot .tm{position:absolute;left:0;bottom:0;height:4px;background:#4ade80}
+.shake{animation:s .3s}
+@keyframes s{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes in{from{opacity:0;transform:translateY(-8px)}}
+.fl{position:fixed;font-weight:800;font-size:22px;pointer-events:none;animation:up .9s forwards;z-index:9;text-shadow:0 1px 4px #0008}
+@keyframes up{to{transform:translateY(-55px);opacity:0}}
+#talk{display:flex;align-items:center;gap:12px;margin-top:12px}#mas{font-size:40px;animation:bob 2s ease-in-out infinite}#msg{flex:1;background:var(--card);border-radius:16px;padding:10px 14px;font-size:14px;font-weight:600;box-shadow:var(--sh);position:relative;min-height:46px;display:flex;align-items:center}#msg:before{content:"";position:absolute;left:-6px;top:50%;margin-top:-6px;width:12px;height:12px;background:var(--card);transform:rotate(45deg)}#mas{position:relative}#mood{position:absolute;right:-8px;top:-10px;font-size:17px;background:var(--card);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;box-shadow:var(--sh)}@keyframes bob{50%{transform:translateY(-4px) rotate(-3deg)}}.cf{position:fixed;top:-14px;width:9px;height:14px;z-index:20;pointer-events:none;animation:fall 1.7s ease-in forwards}@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}button:active{transform:scale(.96)}.snd{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;background:var(--card);color:var(--tx);box-shadow:var(--sh);padding:8px 11px;border-radius:12px;font-size:16px;z-index:5}
+.legend{font-size:11.5px;color:var(--mu);text-align:center;margin-top:8px}
+button{font:inherit;font-weight:800;background:linear-gradient(#2563eb,#1d4ed8);color:#fff;border:0;border-radius:14px;padding:13px 28px;cursor:pointer;box-shadow:0 4px 12px #1d4ed855}
+#rules{background:var(--card);border-radius:14px;box-shadow:var(--sh);padding:10px 14px;margin-bottom:12px;font-size:13.5px}
+#rules summary{font-weight:800;cursor:pointer;font-size:14px}
+#rules summary em{font-style:normal;color:var(--ac)}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rc{display:flex;gap:8px;align-items:flex-start;background:var(--bg);border-radius:12px;padding:8px 10px}
+.rc>span{font-size:22px;line-height:1}
+.rc p{margin:0;font-size:12.5px;color:var(--mu);line-height:1.3}
+.rc b{display:block;color:var(--tx);font-size:13px;margin-bottom:1px}
+.rt{margin-top:10px;border-radius:12px;overflow:hidden;border:1px solid var(--ln)}
+.rrow{display:flex;align-items:center;gap:8px;padding:7px 10px;font-size:12.5px;border-top:1px solid var(--ln)}
+.rrow:first-child{border-top:0}
+.rrow .tag{min-width:106px;text-align:center}
+.rrow i{flex:1;font-style:normal;color:var(--mu)}
+.rrow b{font-size:15px;color:var(--ok)}.rrow b:after{content:" pts";font-size:10px;font-weight:600;color:var(--mu)}
+.rf{margin:10px 0 2px;text-align:center;font-weight:700;font-size:12.5px}
+@media(max-width:360px){.rg{grid-template-columns:1fr}}
+#rules li{margin:4px 0}
+#end{display:none;text-align:center;background:var(--card);border-radius:18px;padding:20px;margin-top:12px;box-shadow:var(--sh)}
+#end b{font-size:34px}
+</style>
+</head>
+<body>
+<main>
+<button class="snd" id="snd" aria-label="Som">🔊</button><div class="top"><div class="logo">P</div><div><h1>ParkNow</h1><p class="sub">Ajuda o Parky a arrumar todos os carros! 🚗💨</p></div></div>
+<details id="rules" open><summary>📖 Como jogar <em>é fácil!</em></summary>
+<div class="rg">
+<div class="rc"><span>🎯</span><p><b>Objetivo</b>Ajuda o Parky a arrumar o máximo de carros em 75 segundos.</p></div>
+<div class="rc"><span>👆</span><p><b>Como reservar</b>Toca num pedido e depois num lugar. Os lugares certos ficam a verde.</p></div>
+</div>
+<div class="rt">
+<div class="rrow"><span class="tag">🚗 Normal</span><i>qualquer lugar livre</i><b>10</b></div>
+<div class="rrow"><span class="tag ev">⚡ Elétrico</span><i>só em lugar ⚡</i><b>15</b></div>
+<div class="rrow"><span class="tag pcd">♿ Mobilidade</span><i>só em lugar ♿</i><b>15</b></div>
+<div class="rrow"><span class="tag vip">⭐ VIP</span><i>1.ª fila, lugar normal</i><b>25</b></div>
+</div>
+<div class="rg">
+<div class="rc"><span>⏳</span><p><b>Paciência</b>Se a barra acabar, o cliente vai-se embora: −5 pts e −1 vida.</p></div>
+<div class="rc"><span>❤️</span><p><b>3 vidas</b>Sem vidas, o jogo acaba.</p></div>
+<div class="rc"><span>🔥</span><p><b>Combo</b>Acertos seguidos valem mais, até ×2. Um erro corta o combo.</p></div>
+<div class="rc"><span>🙈</span><p><b>Cuidado</b>Lugar errado: −3 pts. Gastar um lugar ⚡ ou ♿ quando alguém espera por ele: −4 pts.</p></div>
+<div class="rc"><span>🚧</span><p><b>Obras</b>Bloqueiam um lugar durante uns segundos.</p></div>
+<div class="rc"><span>🚨</span><p><b>Hora de ponta</b>Chegam muitos pedidos de seguida!</p></div>
+</div>
+<p class="rf">🏁 No fim, cada vida que sobra dá +10 pts e o teu recorde fica guardado.</p>
+</details>
+<div class="bar">
+<div class="pill"><small>Pontos</small><span id="sc">0</span></div>
+<div class="pill"><small>Tempo</small><span id="tm">75</span></div>
+<div class="pill"><small>Vidas</small><span id="lv">❤️❤️❤️</span></div>
+<div class="pill"><small>Combo</small><span id="cb">×1.0</span></div>
+</div>
+<div class="prog"><i id="pg"></i></div>
+<div id="ban"></div>
+<h2>Reservas à espera</h2>
+<div id="queue"></div>
+<h2>Parque</h2>
+<div id="lot"><div class="gate"><b></b>ENTRADA<b></b></div><div id="grid"></div></div>
+<div class="legend">⚡ elétrico · ♿ mobilidade · ⭐ VIP (1.ª fila, lugar normal) · 🚧 obras</div>
+<div id="talk"><div id="mas"><span style="display:inline-block;transform:scaleX(-1)">🚗</span><span id="mood">😄</span></div><div id="msg">Olá! Eu sou o Parky. Vamos encher este parque? Carrega em “Começar”!</div></div>
+<div style="text-align:center;margin-top:8px"><button id="go">Começar</button></div>
+<div id="end"></div>
+</main>
+<script>
+const NAMES=["Ana","Bruno","Carla","Diogo","Eva","Filipe","Graça","Hugo","Inês","João","Lia","Marco","Rita","Tiago"];
+const COLORS=["#e11d48","#2563eb","#16a34a","#f59e0b","#64748b","#7c3aed","#0f172a","#e2e8f0","#0891b2"];
+const ICON={n:"🚗",ev:"⚡",pcd:"♿",vip:"⭐"},LABEL={n:"Normal",ev:"Elétrico",pcd:"Mobilidade",vip:"VIP"};
+const LAYOUT=["n","n","n","n","n","ev","n","pcd","n","n","ev","n","pcd","n","n","n"];
+const TOTAL=75,L="ABCDEFGHJKLMNPRSTUVXZ";
+let spots,queue,sel,score,time,done,lives,combo,run,tick,spawnAt,blockAt,id=0,last,best=0;
+try{best=+localStorage.getItem("pr_best")||0}catch(e){}
+const $=s=>document.querySelector(s);
+const rl=()=>L[Math.floor(Math.random()*L.length)],rd=()=>Math.floor(Math.random()*10);
+const plate=()=>rl()+rl()+"-"+rd()+rd()+"-"+rl()+rl();
+const car=(c,x="")=>`<svg viewBox="0 0 40 76" class="car ${x}"><rect x="0" y="12" width="5" height="14" rx="2" fill="#111"/><rect x="35" y="12" width="5" height="14" rx="2" fill="#111"/><rect x="0" y="50" width="5" height="14" rx="2" fill="#111"/><rect x="35" y="50" width="5" height="14" rx="2" fill="#111"/><rect x="3" y="2" width="34" height="72" rx="13" fill="${c}"/><rect x="3" y="2" width="34" height="72" rx="13" fill="url(#g)" opacity=".0"/><rect x="8" y="17" width="24" height="12" rx="4" fill="#1a2332"/><rect x="9" y="31" width="22" height="19" rx="5" fill="#fff" opacity=".22"/><rect x="8" y="53" width="24" height="9" rx="4" fill="#1a2332"/><rect x="7" y="4" width="9" height="4" rx="2" fill="#fff7c4"/><rect x="24" y="4" width="9" height="4" rx="2" fill="#fff7c4"/><rect x="7" y="69" width="9" height="3" rx="1.5" fill="#ff4b4b"/><rect x="24" y="69" width="9" height="3" rx="1.5" fill="#ff4b4b"/></svg>`;
+function start(){
+  spots=LAYOUT.map(t=>({t,left:0,max:1,blk:0,c:"#2563eb",pl:"",sh:0,k:0}));
+  queue=[];sel=null;score=0;time=TOTAL;done=0;lives=3;combo=0;run=true;spawnAt=0;blockAt=12;last=Date.now();
+  $("#end").style.display="none";$("#go").style.display="none";$("#rules").open=false;msg("Vamos a isso! Toca num pedido e depois num lugar. 🚀","😄");sfx.ok();
+  clearInterval(tick);tick=setInterval(step,100);render();
+}
+let snd=true,ac;
+function beep(f,d=.12,type="sine",v=.06,delay=0){if(!snd)return;try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain(),t=ac.currentTime+delay;o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d)}catch(e){}}
+const sfx={ok:()=>{beep(660,.1);beep(880,.14,"sine",.06,.09)},bad:()=>beep(160,.25,"sawtooth",.05),lose:()=>{beep(300,.15,"triangle");beep(200,.25,"triangle",.06,.14)},win:()=>[523,659,784,1047].forEach((f,i)=>beep(f,.18,"sine",.06,i*.12))};
+const OKS=["✅ {n} estacionou!","🎉 Boa! {n} já tem lugar!","👏 {n} está radiante!","🚗 Perfeito para {n}!"];
+function confetti(n=28){const cs=["#f43f5e","#f59e0b","#22c55e","#3b82f6","#a855f7"];for(let i=0;i<n;i++){const e=document.createElement("i");e.className="cf";e.style.left=Math.random()*100+"vw";e.style.background=cs[i%5];e.style.animationDelay=Math.random()*.3+"s";document.body.appendChild(e);setTimeout(()=>e.remove(),2300)}}
+function msg(t,mood){$("#msg").textContent=t;if(mood)$("#mood").textContent=mood}
+function elapsed(){return TOTAL-time}
+function rush(){const e=elapsed();return (e>25&&e<38)||(e>55&&e<66)}
+function spawn(){
+  if(queue.length>=5)return;
+  const r=Math.random(),t=r<.45?"n":r<.65?"ev":r<.82?"pcd":"vip";
+  const d=elapsed()/TOTAL;
+  queue.push({id:++id,name:NAMES[Math.floor(Math.random()*NAMES.length)],t,p:1,dur:Math.max(6,13-6*d),c:COLORS[Math.floor(Math.random()*COLORS.length)],pl:plate(),t0:Date.now()});
+}
+function lose(why){
+  lives--;combo=0;score-=5;msg(why,"🙈");sfx.lose();flash("-5","#f87171",innerWidth/2,200);
+  if(lives<=0)finish();
+}
+function step(){
+  const now=Date.now(),dt=(now-last)/1000;last=now;
+  time-=dt;spawnAt-=dt;blockAt-=dt;
+  const d=elapsed()/TOTAL;
+  if(spawnAt<=0){spawn();spawnAt=(3.2-1.9*d+Math.random()*1.2)*(rush()?.55:1)}
+  if(blockAt<=0){
+    const free=spots.filter(s=>s.left<=0&&!s.blk);
+    if(free.length>3){free[Math.floor(Math.random()*free.length)].blk=6;msg("🚧 Ups, obras num lugar! Escolhe outro.","😮")}
+    blockAt=10+Math.random()*6;
+  }
+  queue.forEach(q=>q.p-=dt/q.dur);
+  const gone=queue.filter(q=>q.p<=0);
+  if(gone.length){queue=queue.filter(q=>q.p>0);if(sel&&!queue.find(q=>q.id===sel))sel=null;gone.forEach(()=>{if(run)lose("😿 Ai, o cliente cansou-se de esperar! (−5 pts, −1 vida)")})}
+  spots.forEach(s=>{if(s.left>0)s.left=Math.max(0,s.left-dt);if(s.blk>0)s.blk=Math.max(0,s.blk-dt)});
+  if(time<=0){time=0;finish();return}
+  if(run)render();
+}
+function flash(t,c,x,y){
+  const f=document.createElement("div");f.className="fl";f.textContent=t;f.style.color=c;f.style.left=x+"px";f.style.top=y+"px";
+  document.body.appendChild(f);setTimeout(()=>f.remove(),900);
+}
+function pick(i){if(!run)return;sel=sel===i?null:i;render()}
+function valid(q,i){
+  const s=spots[i];if(s.left>0||s.blk>0)return false;
+  if(q.t==="vip")return i<4&&s.t==="n";
+  if(q.t==="n")return true;
+  return s.t===q.t;
+}
+function place(i,x,y){
+  if(!run||sel===null)return;
+  const s=spots[i];
+  if(s.blk>0){msg("🚧 Esse lugar está em obras. Tenta outro!","😅");return}
+  if(s.left>0)return;
+  const q=queue.find(v=>v.id===sel);if(!q)return;
+  if(!valid(q,i)){
+    score-=3;combo=0;s.sh=Date.now();
+    msg(q.t==="vip"?"🙊 O VIP quer a 1.ª fila, num lugar normal! (−3)":"🙊 "+q.name+" precisa de um lugar "+LABEL[q.t].toLowerCase()+"! (−3)","🙈");sfx.bad();
+    flash("-3","#f87171",x,y);render();return;
+  }
+  let pts=q.t==="vip"?25:q.t==="n"?10:15,waste=false,special=q.t==="n"&&s.t!=="n";
+  if(special){
+    waste=queue.some(v=>v.t===s.t);
+    if(waste){pts=-4;combo=0;msg("😬 Esse lugar "+LABEL[s.t].toLowerCase()+" fazia falta a alguém! (−4)","😬");sfx.bad()}
+    else{pts=4;combo=0;msg("😅 Lugar especial usado, mas ninguém precisava (+4)","😅")}
+  }else{pts=Math.round(pts*(1+Math.min(combo,5)*.2));combo++;msg(OKS[Math.floor(Math.random()*OKS.length)].replace("{n}",q.name)+(combo>2?" Combo ×"+(1+Math.min(combo-1,5)*.2).toFixed(1)+"! 🔥":""),combo>2?"🤩":"😄");sfx.ok();if(combo%4===0)confetti(20)}
+  score+=pts;flash((pts>0?"+":"")+pts,pts>0?"#4ade80":"#f87171",x,y);
+  s.left=s.max=8+Math.random()*4+elapsed()/TOTAL*4;s.c=q.c;s.pl=q.pl;s.k=++id;s.t0=Date.now();done++;
+  queue=queue.filter(v=>v.id!==sel);sel=null;render();
+}
+function draw(){
+  $("#sc").textContent=score;$("#tm").textContent=Math.ceil(time);
+  $("#lv").textContent="❤️".repeat(Math.max(0,lives))+"🖤".repeat(Math.max(0,3-lives));
+  $("#cb").textContent="×"+(1+Math.min(combo,5)*.2).toFixed(1);
+  $("#pg").style.width=(time/TOTAL*100)+"%";
+  $("#ban").textContent=rush()?"🚨 HORA DE PONTA":"";
+  const sq=queue.find(v=>v.id===sel);
+  $("#queue").innerHTML=queue.map(q=>`<div class="req ${q.id===sel?"sel":""} ${q.t==="vip"?"vip":""} ${Date.now()-q.t0<400?"new":""}" data-q="${q.id}">${car(q.c)}<div class="who"><b>${q.name}</b><span class="plate"><i>P</i><span>${q.pl}</span></span></div><span class="tag ${q.t}">${ICON[q.t]} ${LABEL[q.t]}</span><div class="pt" style="width:${Math.max(0,q.p)*100}%;background:${q.p<.35?"var(--bad)":"var(--ok)"}"></div></div>`).join("")||'<p class="sub" style="padding:10px">Tudo calmo… já vêm aí mais clientes! ☕</p>';
+  const now=Date.now();
+  $("#grid").innerHTML=spots.map((s,i)=>{
+    const busy=s.left>0,blk=s.blk>0,h=sq&&valid(sq,i);
+    const lane=i===8?'<div class="lane"><span>➜</span><span>➜</span><span>➜</span></div>':"";
+    return lane+`<div class="spot ${s.t!=="n"?s.t:""} ${busy?"busy":""} ${blk?"blk":""} ${h?"hint":""} ${now-s.sh<300?"shake":""}" data-s="${i}">${!busy&&!blk&&s.t!=="n"?`<div class="st">${ICON[s.t]}</div>`:""}${busy?car(s.c,Date.now()-s.t0<600?"new":"")+`<span class="pl">${s.pl}</span><div class="tm" style="width:${s.left/s.max*100}%"></div>`:blk?"🚧":(i<4?"⭐ ":"")+(i+1)}</div>`}).join("");
+}
+let sig="";
+function render(){
+  const sq=queue.find(v=>v.id===sel),now=Date.now();
+  const k=queue.map(q=>q.id+(q.p<.35?"r":"")).join()+"|"+sel+"|"+spots.map((p,i)=>(p.left>0?"b"+p.k:"")+(p.blk>0?"x":"")+(sq&&valid(sq,i)?"h":"")+(now-p.sh<300?"s":"")).join()+"|"+rush()+lives;
+  if(k!==sig){sig=k;draw();return}
+  $("#sc").textContent=score;$("#tm").textContent=Math.ceil(time);
+  $("#cb").textContent="×"+(1+Math.min(combo,5)*.2).toFixed(1);
+  $("#pg").style.width=(time/TOTAL*100)+"%";
+  document.querySelectorAll(".req").forEach((e,i)=>{const q=queue[i];if(q)e.lastElementChild.style.width=Math.max(0,q.p)*100+"%"});
+  document.querySelectorAll(".spot .tm").forEach(e=>{const p=spots[+e.parentNode.dataset.s];if(p)e.style.width=(p.left/p.max*100)+"%"});
+}
+function finish(){
+  if(!run)return;run=false;clearInterval(tick);
+  const bonus=Math.max(0,lives)*10;score+=bonus;render();
+  const nb=score>best;if(nb){best=score;try{localStorage.setItem("pr_best",best)}catch(e){}}
+  const m=lives<=0?"😿 Ficaste sem vidas… tenta outra vez!":score>=250?"🏆 Mestre do estacionamento!":score>=140?"👏 Muito bem, és um craque!":"💪 Bom começo! Tenta outra vez!";
+  $("#end").style.display="block";if(lives>0){sfx.win();confetti(50)}else sfx.lose();msg(lives>0?"Uau, que equipa! 🎉":"Não faz mal, o Parky acredita em ti! 💪",lives>0?"🥳":"🥺");
+  $("#end").innerHTML=`<div>${m}</div><b>${score} pontos</b><p class="sub">${done} reservas · bónus de vidas +${bonus}<br>${nb?"🎉 Novo recorde!":"Recorde: "+best}<br>Dica: despacha primeiro as barras vermelhas e guarda ⚡ e ♿ para quem precisa.</p>`;
+  $("#go").textContent="Jogar de novo";$("#go").style.display="inline-block";
+}
+document.addEventListener("pointerdown",e=>{
+  const q=e.target.closest("[data-q]"),s=e.target.closest("[data-s]");
+  if(q)pick(+q.dataset.q);else if(s)place(+s.dataset.s,e.clientX-10,e.clientY-20);
+});
+$("#go").onclick=start;
+$("#snd").onclick=()=>{snd=!snd;$("#snd").textContent=snd?"🔊":"🔇"};
+spots=LAYOUT.map(t=>({t,left:0,max:1,blk:0,c:"#2563eb",pl:"",sh:0,k:0}));queue=[];score=0;time=TOTAL;lives=3;combo=0;sel=null;
+render();
+</script>
+</body>
+</html>
